@@ -3,6 +3,7 @@ const User=require('../models/user')
 const bcrypt=require('bcrypt')
 const jwt=require('jsonwebtoken')
 const { SECRETKEY } = require('../keys')
+const requireLogin = require('../middleware/requireLogin')
 const router=express.Router()
 
  //sign up
@@ -62,8 +63,8 @@ router.post("/login",(req,res)=>{
 })
 
 //
-router.get("/protected",(req,res)=>{
-    res.json("Protected")
+router.get("/protected",requireLogin,(req,res)=>{
+    res.json(req.user)
 })
 
 
