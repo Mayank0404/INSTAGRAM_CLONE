@@ -2,6 +2,7 @@ const express=require("express")
 const requireLogin = require("../middleware/requireLogin")
 const Post = require("../models/post")
 const router=express.Router()
+
 //creating post
 router.post("/createPost",requireLogin,(req,res)=>{
   const {title,body,pic}=req.body
@@ -31,13 +32,27 @@ router.get("/mypost",requireLogin,(req,res)=>{
     })
 })
 
+// liking up a post
 router.put("/like",requireLogin,(req,res)=>{
     Post.findByIdAndUpdate(req.body.postId,{
-        $push:{likes:req.user._}
+        $push:{likes:req.user._id}
     },{
         new:true
     })
     .then(result => res.json(result))
 })
+
+//dislike posts
+router.put("/dislike",requireLogin,(req,res)=>{
+    Post.findByIdAndUpdate(req.body.postId,{
+        $pull:{likes:req.user._id}
+    },{
+        new:true
+    })
+    .then(result => res.json(result))
+})
+
+
+
 
 module.exports=router
