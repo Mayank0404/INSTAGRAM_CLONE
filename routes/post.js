@@ -52,6 +52,45 @@ router.put("/dislike",requireLogin,(req,res)=>{
     .then(result => res.json(result))
 })
 
+//comment
+router.put("/comment",requireLogin,(req,res)=>{
+    const comment={
+        text:req.body.text,
+        postedBy:req.user._id
+    }
+    Post.findByIdAndUpdate(req.body.postId,{
+        $push:{comments:comment} 
+    },{
+        new:true
+    })
+    .populate("comments.postedBy","_id name email")
+    .populate("postedBy","_id name")
+    .exec((err,result)=>{ //replacement of then
+        if(err){
+            res.status(422).json({error:err})
+        }else{
+            res.json(result)
+        }
+    })
+})
+
+//delete post
+router.delete("/delete/:postId",requireLogin,(req,res)=>{
+   Post.findOne({_id:req.params.postId})
+        .populate("postedBy","_id name")
+        .exec((err,post)=>{
+            if(err){
+                return res.status(422).json({error:err})
+            }
+            if(post.postedBy._id.toString() === req.user._id.toString()){
+                post.remove()
+                     .then(result =>{
+                         return res.json(result)
+                     })
+            }
+        })
+})
+
 
 
 
